@@ -5,13 +5,24 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import retrofit.RequestInterceptor;
+
 
 public class MainActivity extends ActionBarActivity {
+    SparkService sparkService;
+    SparkDevice selectedSparkDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.sparkService = SparkServiceProvider.createSparkService(new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                request.addHeader("Authorization", String.format("Bearer %s", authenticationToken));
+            }
+        });
     }
 
 
