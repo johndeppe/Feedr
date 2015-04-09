@@ -1,50 +1,88 @@
 package ca.ubc.eece281.feedr;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
-import retrofit.RequestInterceptor;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
-public class MainActivity extends ActionBarActivity {
-    SparkService sparkService;
-    SparkDevice selectedSparkDevice;
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.sparkService = SparkServiceProvider.createSparkService(new RequestInterceptor() {
+        // Declare and assign our buttons and text
+        final Button postButton = (Button) findViewById(R.id.button);
+
+        View.OnClickListener postListener = new View.OnClickListener() {
             @Override
-            public void intercept(RequestFacade request) {
-                request.addHeader("Authorization", String.format("Bearer %s", authenticationToken));
+            public void onClick(View v) {
+                // Post d7,HIGH to spark core
+                Toast.makeText(MainActivity.this, "Feeding your pet!", Toast.LENGTH_SHORT).show();
+                new PostClient().execute("HIGH");
             }
-        });
+        };
+        postButton.setOnClickListener(postListener);
     }
 
+    /*
+     * POST EXAMPLE
+     */
+    // We must do this as a background task, elsewhere our app crashes
+    class PostClient extends AsyncTask<String, Void, String> {
+        public String doInBackground(String... IO) {
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+            // Predefine variables
+            URL url;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+            try {
+                // Stuff variables
+                url = new URL("https://api.spark.io/v1/devices/54ff73066667515145091567/SCL/"); // core id after devices
+                String param = "access_token=986d62b893e6c266eea1eb68d12dc9d8953b79bc&params=food";
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                // Open a connection using HttpURLConnection
+                HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+
+                con.setReadTimeout(7000);
+                con.setConnectTimeout(7000);
+                con.setDoOutput(true);
+                con.setDoInput(true);
+                con.setInstanceFollowRedirects(false);
+                con.setRequestMethod("PetFeeder");
+                con.setFixedLengthStreamingMode(param.getBytes().length);
+                con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                // Send
+                PrintWriter out = new PrintWriter(con.getOutputStream());
+                out.print(param);
+                out.close();
+
+                con.connect();
+
+                BufferedReader in;
+                if (con.getResponseCode() != 200) {
+                    in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+                } else {
+                    in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+            // Set null and we´e good to go
+            return null;
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }
