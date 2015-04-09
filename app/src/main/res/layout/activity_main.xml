@@ -8,4 +8,41 @@
         android:layout_height="wrap_content"
         android:text="Feed My Pet!"
         android:id="@+id/button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Breakfast"
+        android:id="@+id/breakfast_button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lunch"
+        android:id="@+id/lunch_button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dinner"
+        android:id="@+id/dinner_button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Automatic"
+        android:id="@+id/automode_button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Forever Mode"
+        android:id="@+id/forever_button" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Forever Mode"
+        android:id="@+id/stop_button" />
+
 </LinearLayout>
